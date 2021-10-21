@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-import enum
 from typing import Any
 
 from .transform import Transform
