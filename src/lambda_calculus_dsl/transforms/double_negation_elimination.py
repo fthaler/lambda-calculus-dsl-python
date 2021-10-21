@@ -17,24 +17,22 @@ def fwd(x):
     return Keep(value=x)
 
 
-def bwd(v):
-    match v:
-        case Keep(value=x):
-            return x
-        case Negate(value=x):
-            return lambda s: s.neg(x(s))
-    assert False
+def bwd(x):
+    if isinstance(x, Keep):
+        return x.value
+    elif isinstance(x, Negate):
+        return lambda s: s.neg(x.value(s))
+    raise AssertionError()
 
 
 class T(dummy_transform(fwd, bwd)):
     @staticmethod
-    def neg(v):
-        match v:
-            case Keep(x):
-                return Negate(value=x)
-            case Negate(x):
-                return Keep(value=x)
-        assert False
+    def neg(x):
+        if isinstance(x, Keep):
+            return Negate(x.value)
+        elif isinstance(x, Negate):
+            return Keep(x.value)
+        raise AssertionError()
 
 
 def double_neg_elimination(x):

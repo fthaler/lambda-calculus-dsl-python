@@ -1,6 +1,7 @@
 from ..higher_order.higher_order import HigherOrder
 from ..symbolic.symbolic import Symbolic
 
+
 def dummy_transform(fwd, bwd):
     class T(HigherOrder, Symbolic):
         @staticmethod
@@ -11,11 +12,11 @@ def dummy_transform(fwd, bwd):
         def neg(x):
             return fwd(lambda s: s.neg(bwd(x)(s)))
 
-        @staticmethod 
+        @staticmethod
         def add(x, y):
             return fwd(lambda s: s.add(bwd(x)(s), bwd(y)(s)))
 
-        @staticmethod 
+        @staticmethod
         def mul(x, y):
             return fwd(lambda s: s.mul(bwd(x)(s), bwd(y)(s)))
 

@@ -18,19 +18,20 @@ class Literal:
 class Function:
     value: Callable
 
+
 def fwd(x):
     return Unknown(x)
 
 
-def bwd(v):
-    match v:
-        case Unknown(value=x):
-            return x
-        case Literal(value=x):
-            return lambda s: s.lit(x)
-        case Function(value=f):
-            return lambda s: s.lam(lambda x: bwd(f(fwd(lambda _: x)))(s))
-    return x.value(False)
+def bwd(x):
+    if isinstance(x, Unknown):
+        return x.value
+    elif isinstance(x, Literal):
+        return lambda s: s.lit(x.value)
+    elif isinstance(x, Function):
+        f = x.value
+        return lambda s: s.lam(lambda x: bwd(f(fwd(lambda _: x)))(s))
+    raise AssertionError()
 
 
 class T(dummy_transform(fwd, bwd)):
@@ -39,40 +40,32 @@ class T(dummy_transform(fwd, bwd)):
         return Literal(x)
 
     @staticmethod
-    def neg(xv):
-        match xv:
-            case Literal(value=x):
-                return Literal(-x)
-            case _:
-                return super(T, T).neg(xv)
+    def neg(x):
+        if isinstance(x, Literal):
+            return Literal(-x.value)
+        return super(T, T).neg(x)
 
     @staticmethod
-    def add(xv, yv):
-        match (xv, yv):
-            case (Literal(value=x), Literal(value=y)):
-                return Literal(x + y)
-            case _:
-                return super(T, T).add(xv, yv)
+    def add(x, y):
+        if isinstance(x, Literal) and isinstance(y, Literal):
+            return Literal(x.value + y.value)
+        return super(T, T).add(x, y)
 
     @staticmethod
-    def mul(xv, yv):
-        match (xv, yv):
-            case (Literal(value=x), Literal(value=y)):
-                return Literal(x * y)
-            case _:
-                return super(T, T).mul(xv, yv)
+    def mul(x, y):
+        if isinstance(x, Literal) and isinstance(y, Literal):
+            return Literal(x.value * y.value)
+        return super(T, T).mul(x, y)
 
     @staticmethod
     def lam(f):
         return Function(f)
 
     @staticmethod
-    def app(fv, x):
-        match fv:
-            case Function(value=f):
-                return f(x)
-            case _:
-                return super(T, T).app(fv, x)
+    def app(f, x):
+        if isinstance(f, Function):
+            return f.value(x)
+        return super(T, T).app(f, x)
 
 
 def constant_prop(x):
