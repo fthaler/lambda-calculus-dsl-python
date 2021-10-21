@@ -32,6 +32,4 @@ class T(Transform):
         raise AssertionError()
 
 
-def double_neg_elimination(x):
-    t = T()
-    return t.bwd(x(t))
+double_neg_elimination = T.apply

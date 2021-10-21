@@ -54,3 +54,8 @@ class Transform(HigherOrder, Symbolic):
             return s.app(self.bwd(f)(s), self.bwd(x)(s))
 
         return self.fwd(ex)
+
+    @classmethod
+    def apply(cls, ex, *args, **kwargs):
+        t = cls(*args, **kwargs)
+        return t.bwd(ex(t))

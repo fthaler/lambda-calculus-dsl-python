@@ -59,6 +59,4 @@ class T(Transform):
         )
 
 
-def push_neg(x):
-    t = T()
-    return t.bwd(x(t))
+push_neg = T.apply

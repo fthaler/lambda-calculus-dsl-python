@@ -60,6 +60,4 @@ class T(Transform):
         return super().app(f, x)
 
 
-def constant_prop(x):
-    t = T()
-    return t.bwd(x(t))
+constant_prop = T.apply
