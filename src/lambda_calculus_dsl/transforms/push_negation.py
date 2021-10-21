@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import enum
 from typing import Any
 
-from .transform import dummy_transform
+from .transform import Transform
 
 
 class Kind(enum.Enum):
@@ -16,20 +16,18 @@ class Annotated:
     value: Any
 
 
-def fwd(x):
-    def f(negate):
-        assert not negate
-        return x
+class T(Transform):
+    def fwd(self, x):
+        def f(negate):
+            assert not negate
+            return x
 
-    return Annotated(kind=Kind.Unknown, value=f)
+        return Annotated(kind=Kind.Unknown, value=f)
 
+    def bwd(self, x):
+        assert isinstance(x, Annotated)
+        return x.value(False)
 
-def bwd(x):
-    assert isinstance(x, Annotated)
-    return x.value(False)
-
-
-class T(dummy_transform(fwd, bwd)):
     def lit(self, x):
         return Annotated(
             kind=Kind.INVERTIBLE,
@@ -66,4 +64,5 @@ class T(dummy_transform(fwd, bwd)):
 
 
 def push_neg(x):
-    return bwd(x(T()))
+    t = T()
+    return t.bwd(x(t))

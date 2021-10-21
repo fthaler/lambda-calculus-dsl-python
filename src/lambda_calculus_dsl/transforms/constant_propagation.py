@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from collections.abc import Callable
 from typing import Any
-from .transform import dummy_transform
+from .transform import Transform
 
 
 @dataclass
@@ -19,22 +19,20 @@ class Function:
     value: Callable
 
 
-def fwd(x):
-    return Unknown(x)
+class T(Transform):
+    def fwd(self, x):
+        return Unknown(x)
 
+    def bwd(self, x):
+        if isinstance(x, Unknown):
+            return x.value
+        elif isinstance(x, Literal):
+            return lambda s: s.lit(x.value)
+        elif isinstance(x, Function):
+            f = x.value
+            return lambda s: s.lam(lambda x: bwd(f(fwd(lambda _: x)))(s))
+        raise AssertionError()
 
-def bwd(x):
-    if isinstance(x, Unknown):
-        return x.value
-    elif isinstance(x, Literal):
-        return lambda s: s.lit(x.value)
-    elif isinstance(x, Function):
-        f = x.value
-        return lambda s: s.lam(lambda x: bwd(f(fwd(lambda _: x)))(s))
-    raise AssertionError()
-
-
-class T(dummy_transform(fwd, bwd)):
     def lit(self, x):
         return Literal(x)
 
@@ -63,4 +61,5 @@ class T(dummy_transform(fwd, bwd)):
 
 
 def constant_prop(x):
-    return bwd(x(T()))
+    t = T()
+    return t.bwd(x(t))

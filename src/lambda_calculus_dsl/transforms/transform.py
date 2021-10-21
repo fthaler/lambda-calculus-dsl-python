@@ -1,28 +1,56 @@
+from abc import abstractmethod
+
 from ..higher_order.higher_order import HigherOrder
 from ..symbolic.symbolic import Symbolic
 
 
-def dummy_transform(fwd, bwd):
-    class T(HigherOrder, Symbolic):
-        def lit(self, x):
-            return fwd(lambda s: s.lit(x))
+class Transform(HigherOrder, Symbolic):
+    @abstractmethod
+    def fwd(self, x):
+        ...
 
-        def neg(self, x):
-            return fwd(lambda s: s.neg(bwd(x)(s)))
+    @abstractmethod
+    def bwd(self, x):
+        ...
 
-        def add(self, x, y):
-            return fwd(lambda s: s.add(bwd(x)(s), bwd(y)(s)))
+    def lit(self, x):
+        def ex(s):
+            return s.lit(x)
 
-        def mul(self, x, y):
-            return fwd(lambda s: s.mul(bwd(x)(s), bwd(y)(s)))
+        return self.fwd(ex)
 
-        def sym(self, x):
-            return fwd(lambda s: s.sym(x))
+    def neg(self, x):
+        def ex(s):
+            return s.neg(self.bwd(x)(s))
 
-        def lam(self, f):
-            return fwd(lambda s: s.lam(lambda x: bwd(f(fwd(lambda _: x)))(s)))
+        return self.fwd(ex)
 
-        def app(self, f, x):
-            return fwd(lambda s: s.app(bwd(f)(s), bwd(x)(s)))
+    def add(self, x, y):
+        def ex(s):
+            return s.add(self.bwd(x)(s), self.bwd(y)(s))
 
-    return T
+        return self.fwd(ex)
+
+    def mul(self, x, y):
+        def ex(s):
+            return s.mul(self.bwd(x)(s), self.bwd(y)(s))
+
+        return self.fwd(ex)
+
+    def sym(self, x):
+        def ex(s):
+            return s.sym(x)
+
+        return self.fwd(ex)
+
+    def lam(self, f):
+        def ex(s):
+            return s.lam(lambda x: self.bwd(f(self.fwd(lambda _: x)))(s))
+
+        return self.fwd(ex)
+
+    def app(self, f, x):
+        def ex(s):
+            return s.app(self.bwd(f)(s), self.bwd(x)(s))
+
+        return self.fwd(ex)

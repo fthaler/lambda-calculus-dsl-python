@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Any
-from .transform import dummy_transform
+from .transform import Transform
 
 
 @dataclass
@@ -13,19 +13,17 @@ class Negate:
     value: Any
 
 
-def fwd(x):
-    return Keep(value=x)
+class T(Transform):
+    def fwd(self, x):
+        return Keep(value=x)
 
+    def bwd(self, x):
+        if isinstance(x, Keep):
+            return x.value
+        elif isinstance(x, Negate):
+            return lambda s: s.neg(x.value(s))
+        raise AssertionError()
 
-def bwd(x):
-    if isinstance(x, Keep):
-        return x.value
-    elif isinstance(x, Negate):
-        return lambda s: s.neg(x.value(s))
-    raise AssertionError()
-
-
-class T(dummy_transform(fwd, bwd)):
     def neg(self, x):
         if isinstance(x, Keep):
             return Negate(x.value)
@@ -35,4 +33,5 @@ class T(dummy_transform(fwd, bwd)):
 
 
 def double_neg_elimination(x):
-    return bwd(x(T()))
+    t = T()
+    return t.bwd(x(t))
