@@ -134,3 +134,22 @@ def test_constant_propagation():
     assert view(constant_prop(ex10)) == "lambda x0: x0 * 2"
     assert view(constant_prop(ex11)) == "lambda x0: x0 * x0"
     assert view(constant_prop(ex12)) == "lambda x1: lambda x0: x1 + x0"
+
+
+def full_opt(ex):
+    return constant_prop(double_neg_elimination(push_neg(ex)))
+
+
+def test_full_opt():
+    assert view(full_opt(ex1)) == "3"
+    assert view(full_opt(ex2)) == "-1"
+    assert view(full_opt(ex3)) == "-1"
+    assert view(full_opt(ex4)) == "1 + x"
+    assert view(full_opt(ex5)) == "1 + x * y"
+    assert view(full_opt(ex6)) == "-2 + x"
+    assert view(full_opt(ex7)) == "-2 + -x"
+    assert view(full_opt(ex8)) == "3"
+    assert view(full_opt(ex9)) == "-2 + -x + z"
+    assert view(full_opt(ex10)) == "lambda x0: x0 * 2"
+    assert view(full_opt(ex11)) == "lambda x0: x0 * x0"
+    assert view(full_opt(ex12)) == "lambda x1: lambda x0: x1 + x0"
