@@ -1,7 +1,9 @@
+from abc import abstractmethod
+
 from ..base.base import Base
 
 
 class Symbolic(Base):
-    @staticmethod
-    def sym(x):
+    @abstractmethod
+    def sym(self, x):
         ...

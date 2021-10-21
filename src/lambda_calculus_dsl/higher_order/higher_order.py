@@ -1,11 +1,13 @@
+from abc import abstractmethod
+
 from ..base.base import Base
 
 
 class HigherOrder(Base):
-    @staticmethod
-    def lam(f):
+    @abstractmethod
+    def lam(self, f):
         ...
 
-    @staticmethod
-    def app(f, x):
+    @abstractmethod
+    def app(self, f, x):
         ...

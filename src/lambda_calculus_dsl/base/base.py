@@ -1,20 +1,22 @@
-class Base:
-    @staticmethod
-    def lit(x):
+from abc import ABC, abstractmethod
+
+
+class Base(ABC):
+    @abstractmethod
+    def lit(self, x):
         ...
 
-    @staticmethod
-    def neg(x):
+    @abstractmethod
+    def neg(self, x):
         ...
 
-    @staticmethod
-    def add(x, y):
+    @abstractmethod
+    def add(self, x, y):
         ...
 
-    @staticmethod
-    def mul(x, y):
+    @abstractmethod
+    def mul(self, x, y):
         ...
 
-    @classmethod
-    def sub(cls, x, y):
-        return cls.add(x, cls.neg(y))
+    def sub(self, x, y):
+        return self.add(x, self.neg(y))

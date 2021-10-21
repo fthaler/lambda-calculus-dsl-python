@@ -3,36 +3,31 @@ from .symbolic import Symbolic
 
 
 class RV(R, Symbolic):
-    @staticmethod
-    def lit(x: int):
+    def lit(self, x: int):
         def bind(_):
             return x
 
         return bind
 
-    @staticmethod
-    def neg(x):
+    def neg(self, x):
         def bind(symbol_map):
             return -x(symbol_map)
 
         return bind
 
-    @staticmethod
-    def add(x, y):
+    def add(self, x, y):
         def bind(symbol_map):
             return x(symbol_map) + y(symbol_map)
 
         return bind
 
-    @staticmethod
-    def mul(x, y):
+    def mul(self, x, y):
         def bind(symbol_map):
             return x(symbol_map) * y(symbol_map)
 
         return bind
 
-    @staticmethod
-    def sym(x):
+    def sym(self, x):
         def bind(symbol_map):
             return symbol_map(x)
 
@@ -40,4 +35,4 @@ class RV(R, Symbolic):
 
 
 def evaluate_sym(x, sym_map):
-    return x(RV)(sym_map)
+    return x(RV())(sym_map)

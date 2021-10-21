@@ -26,12 +26,12 @@ class T(dummy_transform(fwd, bwd)):
 
 
 def test_dummy_transform():
-    assert view(bwd(ex1(T))) == "1 + 2"
-    assert view(bwd(ex2(T))) == "1 + -2"
-    assert view(bwd(ex3(T))) == "1 * 2 + -3"
-    assert view(bwd(ex4(T))) == "1 + x"
-    assert view(bwd(ex5(T))) == "1 + x * y"
-    assert view(bwd(ex6(T))) == "-(1 * 2 + -x)"
-    assert view(bwd(ex7(T))) == "-(1 * 2 + --x)"
-    assert view(bwd(ex8(T))) == "(lambda x0: 1 + x0)(2)"
-    assert view(bwd(ex9(T))) == "(lambda x0: -(1 * 2 + --x) + x0)(z)"
+    assert view(bwd(ex1(T()))) == "1 + 2"
+    assert view(bwd(ex2(T()))) == "1 + -2"
+    assert view(bwd(ex3(T()))) == "1 * 2 + -3"
+    assert view(bwd(ex4(T()))) == "1 + x"
+    assert view(bwd(ex5(T()))) == "1 + x * y"
+    assert view(bwd(ex6(T()))) == "-(1 * 2 + -x)"
+    assert view(bwd(ex7(T()))) == "-(1 * 2 + --x)"
+    assert view(bwd(ex8(T()))) == "(lambda x0: 1 + x0)(2)"
+    assert view(bwd(ex9(T()))) == "(lambda x0: -(1 * 2 + --x) + x0)(z)"

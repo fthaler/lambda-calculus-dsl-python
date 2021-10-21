@@ -2,22 +2,18 @@ from .base import Base
 
 
 class R(Base):
-    @staticmethod
-    def lit(x: int) -> int:
+    def lit(self, x: int) -> int:
         return x
 
-    @staticmethod
-    def neg(x: int) -> int:
+    def neg(self, x: int) -> int:
         return -x
 
-    @staticmethod
-    def add(x: int, y: int) -> int:
+    def add(self, x: int, y: int) -> int:
         return x + y
 
-    @staticmethod
-    def mul(x: int, y: int) -> int:
+    def mul(self, x: int, y: int) -> int:
         return x * y
 
 
 def evaluate(x):
-    return x(R)
+    return x(R())

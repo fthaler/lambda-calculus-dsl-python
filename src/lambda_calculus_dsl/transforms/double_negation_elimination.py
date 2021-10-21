@@ -26,8 +26,7 @@ def bwd(x):
 
 
 class T(dummy_transform(fwd, bwd)):
-    @staticmethod
-    def neg(x):
+    def neg(self, x):
         if isinstance(x, Keep):
             return Negate(x.value)
         elif isinstance(x, Negate):
@@ -36,4 +35,4 @@ class T(dummy_transform(fwd, bwd)):
 
 
 def double_neg_elimination(x):
-    return bwd(x(T))
+    return bwd(x(T()))

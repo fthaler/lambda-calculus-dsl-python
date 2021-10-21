@@ -35,38 +35,32 @@ def bwd(x):
 
 
 class T(dummy_transform(fwd, bwd)):
-    @staticmethod
-    def lit(x):
+    def lit(self, x):
         return Literal(x)
 
-    @staticmethod
-    def neg(x):
+    def neg(self, x):
         if isinstance(x, Literal):
             return Literal(-x.value)
-        return super(T, T).neg(x)
+        return super().neg(x)
 
-    @staticmethod
-    def add(x, y):
+    def add(self, x, y):
         if isinstance(x, Literal) and isinstance(y, Literal):
             return Literal(x.value + y.value)
-        return super(T, T).add(x, y)
+        return super().add(x, y)
 
-    @staticmethod
-    def mul(x, y):
+    def mul(self, x, y):
         if isinstance(x, Literal) and isinstance(y, Literal):
             return Literal(x.value * y.value)
-        return super(T, T).mul(x, y)
+        return super().mul(x, y)
 
-    @staticmethod
-    def lam(f):
+    def lam(self, f):
         return Function(f)
 
-    @staticmethod
-    def app(f, x):
+    def app(self, f, x):
         if isinstance(f, Function):
             return f.value(x)
-        return super(T, T).app(f, x)
+        return super().app(f, x)
 
 
 def constant_prop(x):
-    return bwd(x(T))
+    return bwd(x(T()))

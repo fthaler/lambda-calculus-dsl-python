@@ -4,32 +4,25 @@ from ..symbolic.symbolic import Symbolic
 
 def dummy_transform(fwd, bwd):
     class T(HigherOrder, Symbolic):
-        @staticmethod
-        def lit(x):
+        def lit(self, x):
             return fwd(lambda s: s.lit(x))
 
-        @staticmethod
-        def neg(x):
+        def neg(self, x):
             return fwd(lambda s: s.neg(bwd(x)(s)))
 
-        @staticmethod
-        def add(x, y):
+        def add(self, x, y):
             return fwd(lambda s: s.add(bwd(x)(s), bwd(y)(s)))
 
-        @staticmethod
-        def mul(x, y):
+        def mul(self, x, y):
             return fwd(lambda s: s.mul(bwd(x)(s), bwd(y)(s)))
 
-        @staticmethod
-        def sym(x):
+        def sym(self, x):
             return fwd(lambda s: s.sym(x))
 
-        @staticmethod
-        def lam(f):
+        def lam(self, f):
             return fwd(lambda s: s.lam(lambda x: bwd(f(fwd(lambda _: x)))(s)))
 
-        @staticmethod
-        def app(f, x):
+        def app(self, f, x):
             return fwd(lambda s: s.app(bwd(f)(s), bwd(x)(s)))
 
     return T

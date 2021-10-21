@@ -27,35 +27,30 @@ def bwd(x):
 
 
 class T(dummy_transform(fwd, bwd)):
-    @staticmethod
-    def lit(x):
+    def lit(self, x):
         return Invertible(lambda negate: lambda s: s.lit(-x) if negate else s.lit(x))
 
-    @staticmethod
-    def neg(x):
+    def neg(self, x):
         assert isinstance(x, Invertible)
         return Invertible(lambda negate: x.value(not negate))
 
-    @staticmethod
-    def add(x, y):
+    def add(self, x, y):
         assert isinstance(x, Invertible) and isinstance(y, Invertible)
         return Invertible(
             lambda negate: lambda s: s.add(x.value(negate)(s), y.value(negate)(s))
         )
 
-    @staticmethod
-    def mul(x, y):
+    def mul(self, x, y):
         assert isinstance(x, Invertible) and isinstance(y, Invertible)
         return Invertible(
             lambda negate: lambda s: s.mul(x.value(negate)(s), y.value(False)(s))
         )
 
-    @staticmethod
-    def sym(x):
+    def sym(self, x):
         return Invertible(
             lambda negate: lambda s: s.neg(s.sym(x)) if negate else s.sym(x)
         )
 
 
 def push_neg(x):
-    return bwd(x(T))
+    return bwd(x(T()))
