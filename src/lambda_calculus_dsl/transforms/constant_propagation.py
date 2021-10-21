@@ -30,7 +30,7 @@ class T(Transform):
             return lambda s: s.lit(x.value)
         elif isinstance(x, Function):
             f = x.value
-            return lambda s: s.lam(lambda x: bwd(f(fwd(lambda _: x)))(s))
+            return lambda s: s.lam(lambda x: self.bwd(f(self.fwd(lambda _: x)))(s))
         raise AssertionError()
 
     def lit(self, x):

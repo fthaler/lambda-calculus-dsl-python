@@ -44,6 +44,10 @@ def ex9(s):
     return s.app(s.lam(lambda x: s.add(ex7(s), x)), s.sym("z"))
 
 
+def ex10(s):
+    return s.lam(lambda x: s.mul(x, s.lit(2)))
+
+
 def sym_map(x):
     return {"x": 42, "y": -42, "z": 0}[x]
 
@@ -53,6 +57,7 @@ def test_evaluate():
     assert evaluate(ex2) == -1
     assert evaluate(ex3) == -1
     assert evaluate(ex8) == 3
+    assert evaluate(ex10)(1) == 2
 
 
 def test_evaluate_sym():
@@ -68,6 +73,7 @@ def test_evaluate_sym():
     assert evaluate_sym(ex7, sym_map) == -44
     assert evaluate_sym(ex8, sym_map) == 3
     assert evaluate_sym(ex9, sym_map) == -44
+    assert evaluate_sym(ex10, sym_map)(1) == 2
 
 
 def test_view():
@@ -80,6 +86,7 @@ def test_view():
     assert view(ex7) == "-(1 * 2 + --x)"
     assert view(ex8) == "(lambda x0: 1 + x0)(2)"
     assert view(ex9) == "(lambda x0: -(1 * 2 + --x) + x0)(z)"
+    assert view(ex10) == "lambda x0: x0 * 2"
 
 
 def test_double_negation_elimination():
@@ -87,11 +94,13 @@ def test_double_negation_elimination():
     assert view(double_neg_elimination(lambda s: s.add(s.lit(1), s.lit(2)))) == "1 + 2"
     assert view(double_neg_elimination(ex7)) == "-(1 * 2 + x)"
     assert view(double_neg_elimination(ex9)) == "(lambda x0: -(1 * 2 + x) + x0)(z)"
+    assert view(double_neg_elimination(ex10)) == "lambda x0: x0 * 2"
 
 
 def test_push_negation():
     assert view(push_neg(ex6)) == "-1 * 2 + x"
     assert view(push_neg(ex7)) == "-1 * 2 + -x"
+    assert view(push_neg(ex10)) == "lambda x0: x0 * 2"
 
 
 def test_constant_propagation():
@@ -104,3 +113,4 @@ def test_constant_propagation():
     assert view(constant_prop(ex7)) == "-(2 + --x)"
     assert view(constant_prop(ex8)) == "3"
     assert view(constant_prop(ex9)) == "-(2 + --x) + z"
+    assert view(constant_prop(ex10)) == "lambda x0: x0 * 2"

@@ -18,11 +18,13 @@ class Annotated:
 
 class T(Transform):
     def fwd(self, x):
+        assert not isinstance(x, Annotated)
+
         def f(negate):
             assert not negate
             return x
 
-        return Annotated(kind=Kind.Unknown, value=f)
+        return Annotated(kind=Kind.UNKNOWN, value=f)
 
     def bwd(self, x):
         assert isinstance(x, Annotated)
@@ -35,26 +37,31 @@ class T(Transform):
         )
 
     def neg(self, x):
-        assert isinstance(x, Annotated) and x.kind == Kind.INVERTIBLE
-        return Annotated(kind=Kind.INVERTIBLE, value=lambda negate: x.value(not negate))
+        if x.kind == Kind.INVERTIBLE:
+            return Annotated(
+                kind=Kind.INVERTIBLE, value=lambda negate: x.value(not negate)
+            )
+        return super().neg(x)
 
     def add(self, x, y):
-        assert isinstance(x, Annotated) and x.kind == Kind.INVERTIBLE
-        assert isinstance(y, Annotated) and y.kind == Kind.INVERTIBLE
-        return Annotated(
-            kind=Kind.INVERTIBLE,
-            value=lambda negate: lambda s: s.add(
-                x.value(negate)(s), y.value(negate)(s)
-            ),
-        )
+        if x.kind == y.kind == Kind.INVERTIBLE:
+            return Annotated(
+                kind=Kind.INVERTIBLE,
+                value=lambda negate: lambda s: s.add(
+                    x.value(negate)(s), y.value(negate)(s)
+                ),
+            )
+        return super().add(x, y)
 
     def mul(self, x, y):
-        assert isinstance(x, Annotated) and x.kind == Kind.INVERTIBLE
-        assert isinstance(y, Annotated) and y.kind == Kind.INVERTIBLE
-        return Annotated(
-            kind=Kind.INVERTIBLE,
-            value=lambda negate: lambda s: s.mul(x.value(negate)(s), y.value(False)(s)),
-        )
+        if x.kind == y.kind == Kind.INVERTIBLE:
+            return Annotated(
+                kind=Kind.INVERTIBLE,
+                value=lambda negate: lambda s: s.mul(
+                    x.value(negate)(s), y.value(False)(s)
+                ),
+            )
+        return super().mul(x, y)
 
     def sym(self, x):
         return Annotated(
