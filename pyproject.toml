@@ -10,7 +10,12 @@ python = "^3.10"
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
 black = "^21.9b0"
+mypy = "^0.910"
+flake8 = "^4.0.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+files = ["src/**/*.py", "test/**/*.py"]
