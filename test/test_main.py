@@ -1,10 +1,10 @@
 from lambda_calculus_dsl import (
+    constant_prop,
+    double_neg_elimination,
     evaluate,
     evaluate_sym,
-    view,
-    double_neg_elimination,
     push_neg,
-    constant_prop,
+    view,
 )
 
 
