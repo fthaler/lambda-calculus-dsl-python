@@ -15,6 +15,13 @@ class Invertible:
     value: Any
 
 
+def maybe_negate(ex):
+    def inner(negate):
+        return (lambda s: s.neg(ex(s))) if negate else ex
+
+    return Invertible(inner)
+
+
 class T(Transform):
     def fwd(self, x):
         assert not isinstance(x, (Unknown, Invertible))
@@ -37,26 +44,28 @@ class T(Transform):
     def neg(self, x):
         if isinstance(x, Invertible):
             return Invertible(lambda negate: x.value(not negate))
-        return super().neg(x)
+        return maybe_negate(self.bwd(x))
 
     def add(self, x, y):
         if isinstance(x, Invertible) and isinstance(y, Invertible):
             return Invertible(
                 lambda negate: lambda s: s.add(x.value(negate)(s), y.value(negate)(s)),
             )
-        return super().add(x, y)
+        return maybe_negate(lambda s: s.add(self.bwd(x)(s), self.bwd(y)(s)))
 
     def mul(self, x, y):
-        if isinstance(x, Invertible) and isinstance(y, Invertible):
+        if isinstance(x, Invertible):
             return Invertible(
                 lambda negate: lambda s: s.mul(x.value(negate)(s), y.value(False)(s)),
             )
-        return super().mul(x, y)
+        if isinstance(y, Invertible):
+            return Invertible(
+                lambda negate: lambda s: s.mul(x.value(False)(s), y.value(negate)(s)),
+            )
+        return maybe_negate(lambda s: s.mul(self.bwd(x)(s), self.bwd(y)(s)))
 
     def sym(self, x):
-        return Invertible(
-            lambda negate: lambda s: s.neg(s.sym(x)) if negate else s.sym(x),
-        )
+        return maybe_negate(lambda s: s.sym(x))
 
 
 push_neg = T.apply

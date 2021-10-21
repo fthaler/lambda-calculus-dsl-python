@@ -48,6 +48,14 @@ def ex10(s):
     return s.lam(lambda x: s.mul(x, s.lit(2)))
 
 
+def ex11(s):
+    return s.lam(lambda x: s.mul(x, x))
+
+
+def ex12(s):
+    return s.lam(lambda x: s.lam(lambda y: s.add(x, y)))
+
+
 def sym_map(x):
     return {"x": 42, "y": -42, "z": 0}[x]
 
@@ -58,6 +66,8 @@ def test_evaluate():
     assert evaluate(ex3) == -1
     assert evaluate(ex8) == 3
     assert evaluate(ex10)(1) == 2
+    assert evaluate(ex11)(2) == 4
+    assert evaluate(ex12)(1)(2) == 3
 
 
 def test_evaluate_sym():
@@ -74,6 +84,8 @@ def test_evaluate_sym():
     assert evaluate_sym(ex8, sym_map) == 3
     assert evaluate_sym(ex9, sym_map) == -44
     assert evaluate_sym(ex10, sym_map)(1) == 2
+    assert evaluate_sym(ex11, sym_map)(2) == 4
+    assert evaluate_sym(ex12, sym_map)(1)(2) == 3
 
 
 def test_view():
@@ -87,6 +99,8 @@ def test_view():
     assert view(ex8) == "(lambda x0: 1 + x0)(2)"
     assert view(ex9) == "(lambda x0: -(1 * 2 + --x) + x0)(z)"
     assert view(ex10) == "lambda x0: x0 * 2"
+    assert view(ex11) == "lambda x0: x0 * x0"
+    assert view(ex12) == "lambda x1: lambda x0: x1 + x0"
 
 
 def test_double_negation_elimination():
@@ -95,12 +109,16 @@ def test_double_negation_elimination():
     assert view(double_neg_elimination(ex7)) == "-(1 * 2 + x)"
     assert view(double_neg_elimination(ex9)) == "(lambda x0: -(1 * 2 + x) + x0)(z)"
     assert view(double_neg_elimination(ex10)) == "lambda x0: x0 * 2"
+    assert view(double_neg_elimination(ex11)) == "lambda x0: x0 * x0"
+    assert view(double_neg_elimination(ex12)) == "lambda x1: lambda x0: x1 + x0"
 
 
 def test_push_negation():
     assert view(push_neg(ex6)) == "-1 * 2 + x"
     assert view(push_neg(ex7)) == "-1 * 2 + -x"
     assert view(push_neg(ex10)) == "lambda x0: x0 * 2"
+    assert view(push_neg(ex11)) == "lambda x0: x0 * x0"
+    assert view(push_neg(ex12)) == "lambda x1: lambda x0: x1 + x0"
 
 
 def test_constant_propagation():
@@ -114,3 +132,5 @@ def test_constant_propagation():
     assert view(constant_prop(ex8)) == "3"
     assert view(constant_prop(ex9)) == "-(2 + --x) + z"
     assert view(constant_prop(ex10)) == "lambda x0: x0 * 2"
+    assert view(constant_prop(ex11)) == "lambda x0: x0 * x0"
+    assert view(constant_prop(ex12)) == "lambda x1: lambda x0: x1 + x0"
