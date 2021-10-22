@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Any
 
 from toolz.functoolz import compose
 
@@ -10,12 +11,12 @@ from .transform import Transform
 
 @dataclass
 class Unknown:
-    value: any
+    value: Any
 
 
 @dataclass
 class Literal:
-    value: int
+    value: Any
 
 
 @dataclass

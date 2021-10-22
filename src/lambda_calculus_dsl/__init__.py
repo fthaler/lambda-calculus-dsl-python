@@ -15,7 +15,12 @@ __all__ = [
     "double_neg_elimination",
     "push_neg",
     "constant_prop",
-    "lit", "neg", "add", "mul", "sub",
+    "lit",
+    "neg",
+    "add",
+    "mul",
+    "sub",
     "sym",
-    "lam", "app"
+    "lam",
+    "app",
 ]

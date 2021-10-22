@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Callable
+from typing import Any, Callable
 
 from ..base.base import Base
 
@@ -14,13 +14,17 @@ class HigherOrder(Base):
         ...
 
 
-def lam(f) -> Callable[[HigherOrder], any]:
-    def ex(s: HigherOrder) -> Callable[[HigherOrder], any]:
+def lam(f) -> Callable[[HigherOrder], Any]:
+    def ex(s: HigherOrder) -> Callable[[HigherOrder], Any]:
         return s.lam(lambda x: f(lambda _: x)(s))
+
     return ex
 
 
-def app(f: Callable[[HigherOrder], any], x: Callable[[HigherOrder], any]) -> Callable[[HigherOrder], any]:
-    def ex(s: HigherOrder) -> Callable[[HigherOrder], any]:
+def app(
+    f: Callable[[HigherOrder], Any], x: Callable[[HigherOrder], Any]
+) -> Callable[[HigherOrder], Any]:
+    def ex(s: HigherOrder) -> Callable[[HigherOrder], Any]:
         return s.app(f(s), x(s))
+
     return ex

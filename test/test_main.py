@@ -5,7 +5,14 @@ from lambda_calculus_dsl import (
     evaluate_sym,
     push_neg,
     view,
-    add, lit, sub, mul, neg, sym, lam, app
+    add,
+    lit,
+    sub,
+    mul,
+    neg,
+    sym,
+    lam,
+    app,
 )
 
 ex1 = add(lit(1), lit(2))

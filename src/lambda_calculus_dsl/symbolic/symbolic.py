@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Callable
+from typing import Any, Callable
 
 from ..base.base import Base
 
@@ -10,7 +10,8 @@ class Symbolic(Base):
         ...
 
 
-def sym(x) -> Callable[[Symbolic], any]:
+def sym(x) -> Callable[[Symbolic], Any]:
     def ex(s: Symbolic):
         return s.sym(x)
+
     return ex
