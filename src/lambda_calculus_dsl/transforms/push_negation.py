@@ -16,10 +16,6 @@ class Invertible:
     value: Any
 
 
-def maybe_negate_(ex):
-    return Invertible(lambda negate: neg(ex) if negate else ex)
-
-
 def maybe_negate(ex):
     return lambda negate: neg(ex) if negate else ex
 
