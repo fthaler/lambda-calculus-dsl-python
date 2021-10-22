@@ -1,7 +1,9 @@
 from abc import abstractmethod
+from toolz.functoolz import compose
 
-from ..higher_order.higher_order import HigherOrder
-from ..symbolic.symbolic import Symbolic
+from ..base.base import lit, neg, add, mul
+from ..higher_order.higher_order import HigherOrder, lam, app
+from ..symbolic.symbolic import Symbolic, sym
 
 
 class Transform(HigherOrder, Symbolic):
@@ -13,47 +15,32 @@ class Transform(HigherOrder, Symbolic):
     def bwd(self, x):
         ...
 
-    def lit(self, x):
-        def ex(s):
-            return s.lit(x)
+    def map1(self, f, x):
+        return self.fwd(f(self.bwd(x)))
 
-        return self.fwd(ex)
+    def map2(self, f, x, y):
+        return self.fwd(f(self.bwd(x), self.bwd(y)))
+
+    def lit(self, x):
+        return self.fwd(lit(x))
 
     def neg(self, x):
-        def ex(s):
-            return s.neg(self.bwd(x)(s))
-
-        return self.fwd(ex)
+        return self.map1(neg, x)
 
     def add(self, x, y):
-        def ex(s):
-            return s.add(self.bwd(x)(s), self.bwd(y)(s))
-
-        return self.fwd(ex)
+        return self.map2(add, x, y)
 
     def mul(self, x, y):
-        def ex(s):
-            return s.mul(self.bwd(x)(s), self.bwd(y)(s))
-
-        return self.fwd(ex)
+        return self.map2(mul, x, y)
 
     def sym(self, x):
-        def ex(s):
-            return s.sym(x)
-
-        return self.fwd(ex)
+        return self.fwd(sym(x))
 
     def lam(self, f):
-        def ex(s):
-            return s.lam(lambda x: self.bwd(f(self.fwd(lambda _: x)))(s))
-
-        return self.fwd(ex)
+        return self.fwd(lam(compose(self.bwd, f, self.fwd)))
 
     def app(self, f, x):
-        def ex(s):
-            return s.app(self.bwd(f)(s), self.bwd(x)(s))
-
-        return self.fwd(ex)
+        return self.map2(app, f, x)
 
     @classmethod
     def apply(cls, ex, *args, **kwargs):

@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from typing import Any
 
 from .transform import Transform
+from ..base.base import neg, lit, add, mul
+from ..symbolic.symbolic import sym
 
 
 @dataclass
@@ -15,10 +17,7 @@ class Invertible:
 
 
 def maybe_negate(ex):
-    def inner(negate):
-        return (lambda s: s.neg(ex(s))) if negate else ex
-
-    return Invertible(inner)
+    return lambda negate: neg(ex) if negate else ex
 
 
 class T(Transform):
@@ -36,35 +35,33 @@ class T(Transform):
         return x.value(False)
 
     def lit(self, x):
-        return Invertible(
-            lambda negate: lambda s: s.lit(-x) if negate else s.lit(x),
-        )
+        return Invertible(lambda negate: lit(-x) if negate else lit(x))
 
     def neg(self, x):
-        if isinstance(x, Invertible):
-            return Invertible(lambda negate: x.value(not negate))
-        return maybe_negate(self.bwd(x))
+        return Invertible(
+            (lambda negate: x.value(not negate))
+            if isinstance(x, Invertible)
+            else maybe_negate(x)
+        )
 
     def add(self, x, y):
-        if isinstance(x, Invertible) and isinstance(y, Invertible):
-            return Invertible(
-                lambda negate: lambda s: s.add(x.value(negate)(s), y.value(negate)(s)),
-            )
-        return maybe_negate(lambda s: s.add(self.bwd(x)(s), self.bwd(y)(s)))
+        return Invertible(
+            (lambda negate: add(x.value(negate), y.value(negate)))
+            if isinstance(x, Invertible) and isinstance(y, Invertible)
+            else maybe_negate(add(self.bwd(x), self.bwd(y)))
+        )
 
     def mul(self, x, y):
-        if isinstance(x, Invertible):
-            return Invertible(
-                lambda negate: lambda s: s.mul(x.value(negate)(s), y.value(False)(s)),
-            )
-        if isinstance(y, Invertible):
-            return Invertible(
-                lambda negate: lambda s: s.mul(x.value(False)(s), y.value(negate)(s)),
-            )
-        return maybe_negate(lambda s: s.mul(self.bwd(x)(s), self.bwd(y)(s)))
+        return Invertible(
+            (lambda negate: mul(x.value(negate), y.value(False)))
+            if isinstance(x, Invertible)
+            else (lambda negate: mul(x.value(False), y.value(negate)))
+            if isinstance(y, Invertible)
+            else maybe_negate(lambda s: s.mul(self.bwd(x)(s), self.bwd(y)(s)))
+        )
 
     def sym(self, x):
-        return maybe_negate(lambda s: s.sym(x))
+        return Invertible(maybe_negate(sym(x)))
 
 
 push_neg = T.apply

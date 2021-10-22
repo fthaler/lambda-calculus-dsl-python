@@ -2,6 +2,10 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
+from toolz.functoolz import compose
+
+from ..base.base import lit
+from ..higher_order.higher_order import lam
 from .transform import Transform
 
 
@@ -12,7 +16,7 @@ class Unknown:
 
 @dataclass
 class Literal:
-    value: int
+    value: Any
 
 
 @dataclass
@@ -28,10 +32,9 @@ class T(Transform):
         if isinstance(x, Unknown):
             return x.value
         elif isinstance(x, Literal):
-            return lambda s: s.lit(x.value)
+            return lit(x.value)
         elif isinstance(x, Function):
-            f = x.value
-            return lambda s: s.lam(lambda x: self.bwd(f(self.fwd(lambda _: x)))(s))
+            return lam(compose(self.bwd, x.value, self.fwd))
         raise AssertionError()
 
     def lit(self, x):
