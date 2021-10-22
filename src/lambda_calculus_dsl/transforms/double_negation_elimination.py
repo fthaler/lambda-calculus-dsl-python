@@ -1,17 +1,16 @@
 from dataclasses import dataclass
-from typing import Any
 
 from .transform import Transform
 
 
 @dataclass
 class Keep:
-    value: Any
+    value: any
 
 
 @dataclass
 class Negate:
-    value: Any
+    value: any
 
 
 class T(Transform):
