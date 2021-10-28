@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional
 
 from ..base.base import App, Expr, Lit, Var
 from ..higher_order.higher_order import Lam

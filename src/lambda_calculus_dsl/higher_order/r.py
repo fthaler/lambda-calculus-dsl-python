@@ -6,7 +6,9 @@ from .higher_order import Lam
 
 
 class R(BaseR):
-    def visit_Lam(self, expr: Lam, *, env: Optional[list[int]]=None, **kwargs: Any) -> Callable[[Any], Any]:
+    def visit_Lam(
+        self, expr: Lam, *, env: Optional[list[int]] = None, **kwargs: Any
+    ) -> Callable[[Any], Any]:
         envl = env if env else []
         return lambda x: self.visit(expr.fun, env=[x] + envl, **kwargs)
 

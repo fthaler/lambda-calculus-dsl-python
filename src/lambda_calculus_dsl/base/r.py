@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Any, Union
+from typing import Any
 
 from ..transforms.transform import Transform
 from .base import App, Builtin, Lit, Var
