@@ -1,6 +1,6 @@
-from ..base.base import App, Builtin, Lit, Var
+from ..base.base import App, Lit, Var
 from ..higher_order.higher_order import Lam
-from .transform import as_builtin_call, make_builtin_call, Transform
+from .transform import as_builtin_call, Transform
 
 
 class UpdateFreeVariables(Transform):

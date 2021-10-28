@@ -1,13 +1,10 @@
-from typing import Any
-
 from test_main import ex1, ex2, ex3, ex4, ex5, ex6, ex7, ex8, ex9, ex10
 
-from lambda_calculus_dsl import view, dbview
-from lambda_calculus_dsl.transforms.transform import Transform
-from lambda_calculus_dsl.base.base import App, Var, Expr
+from lambda_calculus_dsl import view
+from lambda_calculus_dsl.base.base import App, Var
 from lambda_calculus_dsl.higher_order.higher_order import Lam
-
 from lambda_calculus_dsl.transforms.constant_propagation import BetaReduction
+from lambda_calculus_dsl.transforms.transform import Transform
 
 
 class T(Transform):

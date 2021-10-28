@@ -1,4 +1,4 @@
-from ..base.base import App, Builtin, Lit, Var
+from ..base.base import App, Lit
 from .transform import as_builtin_call, make_builtin_call, Transform
 
 

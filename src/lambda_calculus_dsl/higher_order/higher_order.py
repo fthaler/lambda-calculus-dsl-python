@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-import sys
 
 from ..base.base import Expr, var
 

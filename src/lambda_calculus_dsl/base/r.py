@@ -1,7 +1,5 @@
-from typing import Optional
-
-from .base import Expr, Var, Lit, Builtin, App
 from ..transforms.transform import Transform
+from .base import App, Builtin, Lit, Var
 
 
 class R(Transform):

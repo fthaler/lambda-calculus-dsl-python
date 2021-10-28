@@ -1,4 +1,4 @@
-from ..base.base import App, Builtin
+from ..base.base import App
 from .transform import as_builtin_call, Transform
 
 

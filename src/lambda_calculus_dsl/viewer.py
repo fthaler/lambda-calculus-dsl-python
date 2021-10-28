@@ -1,4 +1,4 @@
-from .base.base import Expr, Var, Lit, Builtin, App
+from .base.base import App, Builtin, Lit, Var
 from .higher_order.higher_order import Lam
 from .symbolic.symbolic import Sym
 from .transforms.transform import Transform, as_builtin_call
