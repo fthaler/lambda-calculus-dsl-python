@@ -40,3 +40,13 @@ def test_beta_reduction():
         )
     )
     assert BetaReduction.apply(testee) == expected
+
+    testee = App(
+        Lam(Var(1)),
+        App(
+            Lam(App(App(Var(0), Var(0)), Var(0))),
+            Lam(App(App(Var(0), Var(0)), Var(0))),
+        ),
+    )
+    expected = Var(0)
+    assert BetaReduction.apply(testee) == expected
