@@ -4,35 +4,34 @@ from .symbolic.symbolic import Sym
 from .transforms.transform import Transform, as_builtin_call
 
 
-@staticmethod
-def parenp(p, s):
+def parenp(p: bool, s: str) -> str:
     return "(" + s + ")" if p else s
 
 
 class S(Transform):
-    def visit_Var(self, expr: Var, p: int = 0):
+    def visit_Var(self, expr: Var, p: int = 0) -> str:
         return f"x{expr.idx}"
 
-    def visit_Lit(self, expr: Lit, p: int = 0):
+    def visit_Lit(self, expr: Lit, p: int = 0) -> str:
         return f"{expr.val}"
 
-    def visit_Sym(self, expr: Sym, p: int = 0):
+    def visit_Sym(self, expr: Sym, p: int = 0) -> str:
         return expr.name
 
-    def visit_Lam(self, expr: Lam, p: int = 0):
+    def visit_Lam(self, expr: Lam, p: int = 0) -> str:
         v = "x" + str(self.visit(expr.fun).count("lambda"))
         return parenp(p > 0, f"lambda {v}: {self.visit(expr.fun)}")
 
-    def visit_App(self, expr: App, p: int = 0):
-        if x := as_builtin_call(expr, "neg"):
+    def visit_App(self, expr: App, p: int = 0) -> str:
+        if x := as_builtin_call(expr, "neg", 1):
             return parenp(p > 3, f"-{self.visit(expr.arg, p=3)}")
-        if args := as_builtin_call(expr, "add"):
+        if args := as_builtin_call(expr, "add", 2):
             x, y = args
             return parenp(
                 p > 1,
                 f"{self.visit(x, p=1)} + {self.visit(y, p=1)}",
             )
-        if args := as_builtin_call(expr, "mul"):
+        if args := as_builtin_call(expr, "mul", 2):
             x, y = args
             return parenp(
                 p > 2,
@@ -45,22 +44,22 @@ view = S.apply
 
 
 class DeBrujinS(Transform):
-    def visit_Var(self, expr: Var, p: int = 0):
+    def visit_Var(self, expr: Var, p: int = 0) -> str:
         return f"{expr.idx}"
 
-    def visit_Lit(self, expr: Lit, p: int = 0):
+    def visit_Lit(self, expr: Lit, p: int = 0) -> str:
         return f"'{expr.val}'"
 
-    def visit_Sym(self, expr: Sym, p: int = 0):
+    def visit_Sym(self, expr: Sym, p: int = 0) -> str:
         return f"'{expr.name}'"
 
-    def visit_Builtin(self, expr: Builtin, p: int = 0):
+    def visit_Builtin(self, expr: Builtin, p: int = 0) -> str:
         return f"'{expr.name}'"
 
-    def visit_Lam(self, expr: Lam, p: int = 0):
+    def visit_Lam(self, expr: Lam, p: int = 0) -> str:
         return parenp(p > 0, f"λ {self.visit(expr.fun)}")
 
-    def visit_App(self, expr: App, p: int = 0):
+    def visit_App(self, expr: App, p: int = 0) -> str:
         return parenp(p > 4, f"{self.visit(expr.fun, p=4)} {self.visit(expr.arg, p=5)}")
 
 

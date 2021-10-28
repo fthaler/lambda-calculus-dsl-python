@@ -8,5 +8,5 @@ class Sym(Expr):
     name: str
 
 
-def sym(name: str):
+def sym(name: str) -> Sym:
     return Sym(name)

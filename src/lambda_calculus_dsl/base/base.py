@@ -30,25 +30,25 @@ class App(Expr):
 lit = Lit
 
 
-def neg(x: Expr):
+def neg(x: Expr) -> App:
     return App(Builtin("neg"), x)
 
 
-def add(x: Expr, y: Expr):
+def add(x: Expr, y: Expr) -> App:
     return App(App(Builtin("add"), x), y)
 
 
-def sub(x: Expr, y: Expr):
+def sub(x: Expr, y: Expr) -> App:
     return add(x, neg(y))
 
 
-def mul(x: Expr, y: Expr):
+def mul(x: Expr, y: Expr) -> App:
     return App(App(Builtin("mul"), x), y)
 
 
-def var(index: int):
+def var(index: int) -> Var:
     return Var(index)
 
 
-def app(fun, arg):
+def app(fun: Expr, arg: Expr) -> App:
     return App(fun, arg)
