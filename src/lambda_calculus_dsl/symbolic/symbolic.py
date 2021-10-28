@@ -1,17 +1,12 @@
-from abc import abstractmethod
-from typing import Any, Callable
+from dataclasses import dataclass
 
-from ..base.base import Base
-
-
-class Symbolic(Base):
-    @abstractmethod
-    def sym(self, x):
-        ...
+from ..base.base import Expr
 
 
-def sym(x) -> Callable[[Symbolic], Any]:
-    def ex(s: Symbolic):
-        return s.sym(x)
+@dataclass
+class Sym(Expr):
+    name: str
 
-    return ex
+
+def sym(name: str):
+    return Sym(name)

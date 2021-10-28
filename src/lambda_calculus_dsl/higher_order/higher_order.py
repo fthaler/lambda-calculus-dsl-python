@@ -1,30 +1,25 @@
-from abc import abstractmethod
-from typing import Any, Callable
+from dataclasses import dataclass
+import sys
 
-from ..base.base import Base
-
-
-class HigherOrder(Base):
-    @abstractmethod
-    def lam(self, f):
-        ...
-
-    @abstractmethod
-    def app(self, f, x):
-        ...
+from ..base.base import Expr, var
 
 
-def lam(f) -> Callable[[HigherOrder], Any]:
-    def ex(s: HigherOrder) -> Callable[[HigherOrder], Any]:
-        return s.lam(lambda x: f(lambda _: x)(s))
-
-    return ex
+@dataclass
+class Lam(Expr):
+    fun: Expr
 
 
-def app(
-    f: Callable[[HigherOrder], Any], x: Callable[[HigherOrder], Any]
-) -> Callable[[HigherOrder], Any]:
-    def ex(s: HigherOrder) -> Callable[[HigherOrder], Any]:
-        return s.app(f(s), x(s))
+_counter = None
 
-    return ex
+
+def lam(fun):
+    global _counter
+    if _counter is not None:
+        _counter += 1
+        fun(var(-1))
+    else:
+        _counter = 0
+        fun(var(-1))
+        counter = _counter
+        _counter = None
+        return Lam(fun(var(counter)))

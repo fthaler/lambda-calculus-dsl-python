@@ -1,67 +1,57 @@
-from collections.abc import Callable
-from dataclasses import dataclass
-from typing import Any
-
-from toolz.functoolz import compose
-
-from ..base.base import lit
-from ..higher_order.higher_order import lam
-from .transform import Transform
+from ..base.base import App, Builtin, Lit, Var
+from ..higher_order.higher_order import Lam
+from .transform import as_builtin_call, make_builtin_call, Transform
 
 
-@dataclass
-class Unknown:
-    value: Any
+class UpdateFreeVariables(Transform):
+    def visit_Var(self, expr: Var, *, bound=-1, update):
+        if expr.idx > bound:
+            return Var(update(expr.idx))
+        return expr
+
+    def visit_Lam(self, expr: Lam, *, bound=-1, update):
+        return self.generic_visit(expr, bound=bound + 1, update=update)
 
 
-@dataclass
-class Literal:
-    value: Any
+class BetaReduction(Transform):
+    def visit_Var(self, expr: Var, *, bound=-1, arg=None):
+        if expr.idx == bound:
+            return UpdateFreeVariables.apply(arg, update=lambda x: x + bound)
+        if expr.idx > bound:
+            return Var(expr.idx - 1)
+        return expr
 
+    def visit_Lam(self, expr: Lam, *, bound=-1, arg=None):
+        return self.generic_visit(expr, bound=bound + 1, arg=arg)
 
-@dataclass
-class Function:
-    value: Callable
+    def visit_App(self, expr: App, *, bound=-1, arg=None):
+        if isinstance(expr.fun, Lam) and bound < 0:
+            return self.visit(expr.fun.fun, bound=0, arg=expr.arg)
+        return self.generic_visit(expr, bound=bound, arg=arg)
 
 
 class T(Transform):
-    def fwd(self, x):
-        return Unknown(x)
+    def visit_App(self, expr: App):
+        expr = self.generic_visit(expr)
 
-    def bwd(self, x):
-        if isinstance(x, Unknown):
-            return x.value
-        elif isinstance(x, Literal):
-            return lit(x.value)
-        elif isinstance(x, Function):
-            return lam(compose(self.bwd, x.value, self.fwd))
-        raise AssertionError()
+        def two_lits(args):
+            return (
+                isinstance(args, tuple)
+                and len(args) == 2
+                and all(isinstance(arg, Lit) for arg in args)
+            )
 
-    def lit(self, x):
-        return Literal(x)
-
-    def neg(self, x):
-        if isinstance(x, Literal):
-            return Literal(-x.value)
-        return super().neg(x)
-
-    def add(self, x, y):
-        if isinstance(x, Literal) and isinstance(y, Literal):
-            return Literal(x.value + y.value)
-        return super().add(x, y)
-
-    def mul(self, x, y):
-        if isinstance(x, Literal) and isinstance(y, Literal):
-            return Literal(x.value * y.value)
-        return super().mul(x, y)
-
-    def lam(self, f):
-        return Function(f)
-
-    def app(self, f, x):
-        if isinstance(f, Function):
-            return f.value(x)
-        return super().app(f, x)
+        if (x := as_builtin_call(expr, "neg")) and isinstance(x, Lit):
+            return Lit(-x.val)
+        if (args := as_builtin_call(expr, "add")) and two_lits(args):
+            x, y = args
+            return Lit(x.val + y.val)
+        if (args := as_builtin_call(expr, "mul")) and two_lits(args):
+            x, y = args
+            return Lit(x.val * y.val)
+        if isinstance(expr.fun, Lam):
+            return self.visit(BetaReduction.apply(expr))
+        return expr
 
 
 constant_prop = T.apply

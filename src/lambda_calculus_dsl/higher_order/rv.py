@@ -7,4 +7,4 @@ class RV(BaseRV, R):
 
 
 def evaluate_sym(x, sym_map):
-    return x(RV(sym_map))
+    return RV.apply(x, sym_map=sym_map)

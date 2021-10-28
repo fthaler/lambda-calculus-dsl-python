@@ -4,6 +4,7 @@ from lambda_calculus_dsl import (
     evaluate,
     evaluate_sym,
     push_neg,
+    dbview,
     view,
     add,
     lit,
@@ -74,6 +75,24 @@ def test_view():
     assert view(ex10) == "lambda x0: x0 * 2"
     assert view(ex11) == "lambda x0: x0 * x0"
     assert view(ex12) == "lambda x1: lambda x0: x1 + x0"
+
+
+def test_dbview():
+    assert dbview(ex1) == "'add' '1' '2'"
+    assert dbview(ex2) == "'add' '1' ('neg' '2')"
+    assert dbview(ex3) == "'add' ('mul' '1' '2') ('neg' '3')"
+    assert dbview(ex4) == "'add' '1' 'x'"
+    assert dbview(ex5) == "'add' '1' ('mul' 'x' 'y')"
+    assert dbview(ex6) == "'neg' ('add' ('mul' '1' '2') ('neg' 'x'))"
+    assert dbview(ex7) == "'neg' ('add' ('mul' '1' '2') ('neg' ('neg' 'x')))"
+    assert dbview(ex8) == "(λ 'add' '1' 0) '2'"
+    assert (
+        dbview(ex9)
+        == "(λ 'add' ('neg' ('add' ('mul' '1' '2') ('neg' ('neg' 'x')))) 0) 'z'"
+    )
+    assert dbview(ex10) == "λ 'mul' 0 '2'"
+    assert dbview(ex11) == "λ 'mul' 0 0"
+    assert dbview(ex12) == "λ λ 'add' 1 0"
 
 
 def test_double_negation_elimination():

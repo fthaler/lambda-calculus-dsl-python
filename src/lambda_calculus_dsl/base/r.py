@@ -1,19 +1,25 @@
-from .base import Base
+from typing import Optional
+
+from .base import Expr, Var, Lit, Builtin, App
+from ..transforms.transform import Transform
 
 
-class R(Base):
-    def lit(self, x: int) -> int:
-        return x
+class R(Transform):
+    def visit_Lit(self, expr: Lit, **kwargs):
+        return expr.val
 
-    def neg(self, x: int) -> int:
-        return -x
+    def visit_Var(self, expr: Var, *, env, **kwargs):
+        return env[expr.idx]
 
-    def add(self, x: int, y: int) -> int:
-        return x + y
+    def visit_Builtin(self, expr: Builtin, **kwargs):
+        return {
+            "neg": lambda x: -x,
+            "add": lambda x: lambda y: x + y,
+            "mul": lambda x: lambda y: x * y,
+        }[expr.name]
 
-    def mul(self, x: int, y: int) -> int:
-        return x * y
+    def visit_App(self, expr: App, **kwargs):
+        return self.visit(expr.fun, **kwargs)(self.visit(expr.arg, **kwargs))
 
 
-def evaluate(x):
-    return x(R())
+evaluate = R.apply

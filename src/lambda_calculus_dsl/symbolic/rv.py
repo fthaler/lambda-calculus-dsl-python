@@ -1,15 +1,11 @@
 from ..base.r import R
-from .symbolic import Symbolic
+from .symbolic import Sym
 
 
-class RV(R, Symbolic):
-    def __init__(self, sym_map):
-        super().__init__()
-        self._sym_map = sym_map
-
-    def sym(self, x):
-        return self._sym_map(x)
+class RV(R):
+    def visit_Sym(self, expr: Sym, *, sym_map, **kwargs):
+        return sym_map(expr.name)
 
 
 def evaluate_sym(x, sym_map):
-    return x(RV(sym_map))
+    return RV.apply(x, sym_map=sym_map)

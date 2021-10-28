@@ -1,14 +1,12 @@
 from ..base.r import R as BaseR
-from .higher_order import HigherOrder
+from .higher_order import Lam
 
 
-class R(BaseR, HigherOrder):
-    def lam(self, f):
-        return f
+class R(BaseR):
+    def visit_Lam(self, expr: Lam, *, env=None, **kwargs):
+        if env is None:
+            env = []
+        return lambda x: self.visit(expr.fun, env=[x] + env, **kwargs)
 
-    def app(self, f, x):
-        return f(x)
 
-
-def evaluate(x):
-    return x(R())
+evaluate = R.apply

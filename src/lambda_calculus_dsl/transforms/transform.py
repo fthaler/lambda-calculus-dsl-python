@@ -1,48 +1,49 @@
-from abc import abstractmethod
-from toolz.functoolz import compose
+from dataclasses import fields
 
-from ..base.base import lit, neg, add, mul
-from ..higher_order.higher_order import HigherOrder, lam, app
-from ..symbolic.symbolic import Symbolic, sym
+from ..base.base import App, Builtin, Expr
 
 
-class Transform(HigherOrder, Symbolic):
-    @abstractmethod
-    def fwd(self, x):
-        ...
+class Transform:
+    def generic_visit(self, expr: Expr, **kwargs):
+        values = dict()
+        changed = False
+        for field in fields(expr):
+            value = getattr(expr, field.name)
+            if isinstance(value, Expr):
+                v = self.visit(value, **kwargs)
+                if v != value:
+                    value = v
+                    changed = True
+            values[field.name] = value
+        if changed:
+            return type(expr)(**values)
+        return expr
 
-    @abstractmethod
-    def bwd(self, x):
-        ...
-
-    def map1(self, f, x):
-        return self.fwd(f(self.bwd(x)))
-
-    def map2(self, f, x, y):
-        return self.fwd(f(self.bwd(x), self.bwd(y)))
-
-    def lit(self, x):
-        return self.fwd(lit(x))
-
-    def neg(self, x):
-        return self.map1(neg, x)
-
-    def add(self, x, y):
-        return self.map2(add, x, y)
-
-    def mul(self, x, y):
-        return self.map2(mul, x, y)
-
-    def sym(self, x):
-        return self.fwd(sym(x))
-
-    def lam(self, f):
-        return self.fwd(lam(compose(self.bwd, f, self.fwd)))
-
-    def app(self, f, x):
-        return self.map2(app, f, x)
+    def visit(self, expr: Expr, **kwargs):
+        visit_method = f"visit_{type(expr).__name__}"
+        if hasattr(self, visit_method):
+            return getattr(self, visit_method)(expr, **kwargs)
+        return self.generic_visit(expr, **kwargs)
 
     @classmethod
     def apply(cls, ex, *args, **kwargs):
-        t = cls(*args, **kwargs)
-        return t.bwd(ex(t))
+        return cls().visit(ex, *args, **kwargs)
+
+
+def as_builtin_call(x, name):
+    if isinstance(x, App):
+        if isinstance(x.fun, Builtin) and x.fun.name == name:
+            return x.arg
+        if (
+            isinstance(x.fun, App)
+            and isinstance(x.fun.fun, Builtin)
+            and x.fun.fun.name == name
+        ):
+            return (x.fun.arg, x.arg)
+
+
+def make_builtin_call(name, *args):
+    x = Builtin(name)
+    for arg in args:
+        x = App(x, arg)
+    return x

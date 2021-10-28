@@ -1,58 +1,54 @@
-from abc import ABC, abstractmethod
-from typing import Any, Callable
+from dataclasses import dataclass
 
 
-class Base(ABC):
-    @abstractmethod
-    def lit(self, x):
-        ...
-
-    @abstractmethod
-    def neg(self, x):
-        ...
-
-    @abstractmethod
-    def add(self, x, y):
-        ...
-
-    @abstractmethod
-    def mul(self, x, y):
-        ...
-
-    def sub(self, x, y):
-        return self.add(x, self.neg(y))
+@dataclass
+class Expr:
+    ...
 
 
-def lit(x) -> Callable[[Base], Any]:
-    def ex(s: Base):
-        return s.lit(x)
-
-    return ex
+@dataclass
+class Var(Expr):
+    idx: int
 
 
-def neg(x) -> Callable[[Base], Any]:
-    def ex(s: Base):
-        return s.neg(x(s))
-
-    return ex
+@dataclass
+class Lit(Expr):
+    val: int
 
 
-def add(x: Callable[[Base], Any], y: Callable[[Base], Any]) -> Callable[[Base], Any]:
-    def ex(s: Base):
-        return s.add(x(s), y(s))
-
-    return ex
+@dataclass
+class Builtin(Expr):
+    name: str
 
 
-def mul(x: Callable[[Base], Any], y: Callable[[Base], Any]) -> Callable[[Base], Any]:
-    def ex(s: Base):
-        return s.mul(x(s), y(s))
+@dataclass
+class App(Expr):
+    fun: Expr
+    arg: Expr
 
-    return ex
+
+lit = Lit
 
 
-def sub(x: Callable[[Base], Any], y: Callable[[Base], Any]) -> Callable[[Base], Any]:
-    def ex(s: Base):
-        return s.sub(x(s), y(s))
+def neg(x: Expr):
+    return App(Builtin("neg"), x)
 
-    return ex
+
+def add(x: Expr, y: Expr):
+    return App(App(Builtin("add"), x), y)
+
+
+def sub(x: Expr, y: Expr):
+    return add(x, neg(y))
+
+
+def mul(x: Expr, y: Expr):
+    return App(App(Builtin("mul"), x), y)
+
+
+def var(index: int):
+    return Var(index)
+
+
+def app(fun, arg):
+    return App(fun, arg)
