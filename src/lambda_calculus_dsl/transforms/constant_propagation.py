@@ -22,24 +22,27 @@ class UpdateFreeVariables(Transform):
 
 class BetaReduction(Transform):
     def visit_Var(
-        self, expr: Var, *, bound: int = -1, arg: Optional[Expr] = None
+        self, expr: Var, *, bound: Optional[int] = None, arg: Optional[Expr] = None
     ) -> Any:
-        if expr.idx == bound:
-            assert arg is not None
-            return UpdateFreeVariables.apply(arg, update=lambda x: x + bound)
-        if expr.idx > bound:
-            return Var(expr.idx - 1)
+        if bound is not None:
+            if expr.idx == bound:
+                assert arg is not None
+                return UpdateFreeVariables.apply(arg, update=lambda x: x + bound)
+            if expr.idx > bound:
+                return Var(expr.idx - 1)
         return expr
 
     def visit_Lam(
-        self, expr: Lam, *, bound: int = -1, arg: Optional[Expr] = None
+        self, expr: Lam, *, bound: Optional[int] = None, arg: Optional[Expr] = None
     ) -> Lam:
-        return self.generic_visit(expr, bound=bound + 1, arg=arg)
+        if bound is not None:
+            bound += 1
+        return self.generic_visit(expr, bound=bound, arg=arg)
 
     def visit_App(
-        self, expr: App, *, bound: int = -1, arg: Optional[Expr] = None
+        self, expr: App, *, bound: Optional[int] = None, arg: Optional[Expr] = None
     ) -> Any:
-        if isinstance(expr.fun, Lam) and bound < 0:
+        if isinstance(expr.fun, Lam) and bound is None:
             return self.visit(expr.fun.fun, bound=0, arg=expr.arg)
         return self.generic_visit(expr, bound=bound, arg=arg)
 
