@@ -9,8 +9,8 @@ python = "^3.10"
 toolz = "^0.11.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
-black = "^21.9b0"
+pytest = "^7.2.0"
+black = "^24.3.0"
 mypy = "^0.910"
 flake8 = "^4.0.1"
 isort = "^5.9.3"
