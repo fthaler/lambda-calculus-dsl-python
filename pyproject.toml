@@ -1,23 +1,31 @@
-[tool.poetry]
+[project]
 name = "lambda-calculus-dsl"
 version = "0.1.0"
 description = ""
-authors = ["Felix Thaler <thaler@cscs.ch>"]
+authors = [{ name = "Felix Thaler", email = "thaler@cscs.ch" }]
+requires-python = ">=3.10,<4"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = ["toolz>=0.11.1,<0.12"]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-toolz = "^0.11.1"
-
-[tool.poetry.dev-dependencies]
-pytest = "^7.2.0"
-black = "^24.3.0"
-mypy = "^0.910"
-flake8 = "^4.0.1"
-isort = "^5.9.3"
+[dependency-groups]
+dev = [
+    "pytest>=7.2.0,<8",
+    "black>=24.3.0,<25",
+    "mypy>=0.910,<0.911",
+    "flake8>=4.0.1,<5",
+    "isort>=5.9.3,<6",
+]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.10.3,<0.11.0"]
+build-backend = "uv_build"
 
 [tool.mypy]
 files = ["src/**/*.py", "test/**/*.py"]
