@@ -12,19 +12,19 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
-dependencies = ["toolz>=0.11.1,<0.12"]
+dependencies = ["toolz"]
 
 [dependency-groups]
 dev = [
-    "pytest>=7.2.0,<8",
-    "black>=24.3.0,<25",
-    "mypy>=0.910,<0.911",
-    "flake8>=4.0.1,<5",
-    "isort>=5.9.3,<6",
+    "pytest",
+    "black",
+    "mypy",
+    "flake8",
+    "isort",
 ]
 
 [build-system]
-requires = ["uv_build>=0.10.3,<0.11.0"]
+requires = ["uv_build"]
 build-backend = "uv_build"
 
 [tool.mypy]
